@@ -1,0 +1,27 @@
+// src/lib/chats.ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// نقرأ المفتاح من بيئة Vite
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+if (!apiKey) {
+  throw new Error(
+    "❌ Gemini API Key not found. تأكد أنك أضفت VITE_GEMINI_API_KEY في إعدادات Vercel أو ملف .env"
+  );
+}
+
+// نجهز مكتبة Gemini
+const genAI = new GoogleGenerativeAI(apiKey);
+
+// دالة للتواصل مع Gemini
+export async function askGemini(prompt: string) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error) {
+    console.error("⚠️ خطأ أثناء الاتصال بـ Gemini:", error);
+    return "❌ حدث خطأ أثناء جلب الرد من Gemini.";
+  }
+}
+
