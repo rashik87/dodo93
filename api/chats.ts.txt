@@ -1,26 +1,17 @@
 // src/lib/chats.ts
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// ✅ المفتاح من بيئة Vite (frontend)
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-if (!apiKey) {
-  throw new Error(
-    "❌ Gemini API Key not found. تأكد أنك أضفت VITE_GEMINI_API_KEY في إعدادات Vercel أو ملف .env.local"
-  );
-}
-
-// إنشاء كائن Gemini
-const genAI = new GoogleGenerativeAI(apiKey);
-
-// دالة للتواصل مع Gemini مباشرة من الواجهة
 export async function askGemini(prompt: string) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    const resp = await fetch("/api/askGemini", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+
+    const data = await resp.json();
+    return data.text ?? "❌ لم يتم استرجاع رد من Gemini";
   } catch (error) {
-    console.error("⚠️ خطأ أثناء الاتصال بـ Gemini:", error);
-    return "❌ حدث خطأ أثناء جلب الرد من Gemini.";
+    console.error("⚠️ خطأ أثناء جلب الرد من API:", error);
+    return "❌ حدث خطأ أثناء الاتصال بالخادم.";
   }
 }
