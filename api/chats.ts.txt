@@ -1,25 +1,16 @@
-// src/lib/chats.ts
-
 export async function askGemini(prompt: string) {
   try {
     const res = await fetch("/api/askGemini", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt }),
     });
 
-    if (!res.ok) {
-      const errData = await res.json();
-      console.error("⚠️ Error from API:", errData);
-      return "❌ حدث خطأ أثناء جلب الرد من Gemini.";
-    }
-
     const data = await res.json();
-    return data.text ?? "❌ لا يوجد رد من Gemini.";
+    return data.text ?? "❌ لم يتم الحصول على رد";
   } catch (err) {
-    console.error("⚠️ Fetch error:", err);
-    return "❌ حدث خطأ أثناء جلب الرد من Gemini.";
+    console.error("⚠️ خطأ أثناء الاتصال بالـ API:", err);
+    return "❌ حدث خطأ أثناء الاتصال بالـ API";
   }
 }
+
