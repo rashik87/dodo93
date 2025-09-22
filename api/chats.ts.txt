@@ -6,9 +6,9 @@ export async function askGemini(prompt: string) {
       body: JSON.stringify({ prompt }),
     });
     const data = await res.json();
-    return data.text ?? "❌ لا يوجد رد";
-  } catch (error) {
-    console.error(error);
-    return "❌ حدث خطأ أثناء الاتصال بـ Gemini";
+    return data.text ?? "لا يوجد رد";
+  } catch (err) {
+    console.error("خطأ عند الاتصال بالـ API:", err);
+    return "حدث خطأ أثناء الاتصال بالخدمة.";
   }
 }
