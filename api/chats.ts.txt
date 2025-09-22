@@ -1,19 +1,19 @@
 // src/lib/chats.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// نقرأ المفتاح من بيئة Vite
+// ✅ المفتاح من بيئة Vite (frontend)
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 if (!apiKey) {
   throw new Error(
-    "❌ Gemini API Key not found. تأكد أنك أضفت VITE_GEMINI_API_KEY في إعدادات Vercel أو ملف .env"
+    "❌ Gemini API Key not found. تأكد أنك أضفت VITE_GEMINI_API_KEY في إعدادات Vercel أو ملف .env.local"
   );
 }
 
-// نجهز مكتبة Gemini
+// إنشاء كائن Gemini
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// دالة للتواصل مع Gemini
+// دالة للتواصل مع Gemini مباشرة من الواجهة
 export async function askGemini(prompt: string) {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
