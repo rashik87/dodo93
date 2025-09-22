@@ -1,4 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
+// api/askGemini.ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -7,19 +8,25 @@ export default async function handler(req, res) {
 
   try {
     const { prompt } = req.body ?? {};
-    if (!prompt) return res.status(400).json({ error: "No prompt provided" });
+    if (!prompt) {
+      return res.status(400).json({ error: "No prompt provided" });
+    }
 
+    // ✅ المفتاح من Vercel (backend)
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return res.status(500).json({ error: "API key missing" });
+    if (!apiKey) {
+      return res.status(500).json({ error: "❌ Gemini API Key is missing" });
+    }
 
-    const ai = new GoogleGenAI({ apiKey });
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
-      contents: prompt,
-    });
+    // ✅ إعداد Gemini
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    return res.status(200).json({ text: response.text ?? "No response" });
+    const result = await model.generateContent(prompt);
+
+    return res.status(200).json({ text: result.response.text() });
   } catch (err) {
+    console.error("⚠️ Gemini API error:", err);
     return res.status(500).json({ error: err.message });
   }
 }
