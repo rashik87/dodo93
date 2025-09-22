@@ -2,16 +2,24 @@
 
 export async function askGemini(prompt: string) {
   try {
-    const resp = await fetch("/api/askGemini", {
+    const res = await fetch("/api/askGemini", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ prompt }),
     });
 
-    const data = await resp.json();
-    return data.text ?? "❌ لم يتم استرجاع رد من Gemini";
-  } catch (error) {
-    console.error("⚠️ خطأ أثناء جلب الرد من API:", error);
-    return "❌ حدث خطأ أثناء الاتصال بالخادم.";
+    if (!res.ok) {
+      const errData = await res.json();
+      console.error("⚠️ Error from API:", errData);
+      return "❌ حدث خطأ أثناء جلب الرد من Gemini.";
+    }
+
+    const data = await res.json();
+    return data.text ?? "❌ لا يوجد رد من Gemini.";
+  } catch (err) {
+    console.error("⚠️ Fetch error:", err);
+    return "❌ حدث خطأ أثناء جلب الرد من Gemini.";
   }
 }
