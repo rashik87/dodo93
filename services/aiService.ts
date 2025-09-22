@@ -1,5 +1,3 @@
-
-
 import { GoogleGenAI, Modality, Type } from "@google/genai";
 import { AiGeneratedRecipe, RecipeCategory, FoodItem, AiAnalyzedMeal, Macros, Recipe, DietProtocol, AiGeneratedMealSlot, WeightEntry, UserData, CarbCycleDayType, RecipeTag } from '../types';
 
@@ -7,11 +5,11 @@ let aiInstance: GoogleGenAI | null = null;
 
 const getAi = (): GoogleGenAI => {
     if (!aiInstance) {
-        const apiKey = process.env.API_KEY;
-        if (!apiKey) {
-            throw new Error("Gemini API Key not found. The API_KEY environment variable is not set.");
+        if (!process.env.API_KEY) {
+            // Updated error message with clear instructions for the user.
+            throw new Error("Gemini API Key not found. The API_KEY environment variable is not set. Please add it to your deployment environment (e.g., Vercel > Project Settings > Environment Variables) and redeploy the application.");
         }
-        aiInstance = new GoogleGenAI({ apiKey });
+        aiInstance = new GoogleGenAI({ apiKey: process.env.API_KEY });
     }
     return aiInstance;
 };
@@ -216,7 +214,7 @@ export const generateRecipeWithAi = async ({
         2.  **Generate a Healthy Recipe:**
             *   If a dish name is provided, create a **healthy version** of that dish. Make smart substitutions (e.g., use brown rice for white, lean protein, more vegetables, less oil).
             *   If a list of ingredients is provided, create a healthy and creative recipe using them. You can add complementary ingredients, but they should also be healthy.
-        3.  **Use Provided Database:** When choosing ingredients for the recipe, you **MUST** use the names exactly as they appear in the "Available Ingredients Database" provided above. This is the most important rule. Do not invent new ingredient names if a suitable one exists in the list.
+        3.  **Use Provided Database:** When choosing ingredients for the final recipe, you **MUST** use the names exactly as they appear in the "Available Ingredients Database" provided above. This is the most important rule. Do not invent new ingredient names if a suitable one exists in the list.
         4.  **Specify Quantities for ALL Ingredients:** For **EVERY SINGLE** ingredient in the final recipe, you **MUST** provide its name and its quantity strictly in **grams**. This is mandatory. For example: "name": "صدر دجاج", "quantityGrams": 200. Do not omit the quantity for any ingredient.
         5.  **Adhere to Constraints:** Strictly follow the meal type, dietary style, and calorie constraints.
         6.  **Format the Output:** Provide the response as a single, valid JSON object that strictly adheres to the provided schema. The entire output must be in Arabic. The 'category' field must strictly match one of the provided enum values (e.g., 'BREAKFAST').
