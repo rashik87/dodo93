@@ -5,9 +5,9 @@ let aiInstance: GoogleGenAI | null = null;
 
 const getAi = (): GoogleGenAI => {
     if (!aiInstance) {
-       if (!process.env.GEMINI_API_KEY) {
-            // Updated error message with clear instructions for the user.
-            throw new Error("Gemini API Key not found. The GEMINI_API_KEY environment variable is not set.Please add it to your deployment environment (e.g., Vercel > Project Settings > Environment Variables) and redeploy the application.");
+        if (!process.env.GEMINI_API_KEY) {
+            // رسالة الخطأ محدثة لتجنب كسر السطر داخل string مزدوج
+            throw new Error("Gemini API Key not found. The GEMINI_API_KEY environment variable is not set. Please add it to your deployment environment (e.g., Vercel > Project Settings > Environment Variables) and redeploy the application.");
         }
         aiInstance = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     }
