@@ -1,28 +1,24 @@
-// api/askGemini.ts
-import { GoogleGenAI } from "@google/genai";
-
-export default async function handler(req: any, res: any) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST requests allowed" });
-  }
-
-  const { prompt } = req.body ?? {};
-  if (!prompt) {
-    return res.status(400).json({ error: "No prompt provided" });
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: "API key missing" });
-  }
-
+// src/lib/chats.ts أو المسار اللي تستدعي فيه من الواجهة
+export async function askGemini(prompt: string) {
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
+    const res = await fetch("/api/askGemini", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt }),
+    });
 
-    return res.status(200).json({ text: result.response.text() });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    if (!res.ok) {
+      // لو الخادم رد بحالة غير 200
+      console.error("استجابة الخادم ليست OK:", res.status, await res.text());
+      return "❌ خطأ من جانب الخادم";
+    }
+
+    const data = await res.json();
+    return data.text ?? "لا يوجد رد";
+  } catch (err) {
+    console.error("خطأ عند الاتصال بالـ API:", err);
+    return "حدث خطأ أثناء الاتصال بالخدمة.";
   }
 }
