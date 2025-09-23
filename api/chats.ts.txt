@@ -1,10 +1,20 @@
+// src/lib/chats.ts أو المسار اللي تستدعي فيه من الواجهة
 export async function askGemini(prompt: string) {
   try {
     const res = await fetch("/api/askGemini", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ prompt }),
     });
+
+    if (!res.ok) {
+      // لو الخادم رد بحالة غير 200
+      console.error("استجابة الخادم ليست OK:", res.status, await res.text());
+      return "❌ خطأ من جانب الخادم";
+    }
+
     const data = await res.json();
     return data.text ?? "لا يوجد رد";
   } catch (err) {
