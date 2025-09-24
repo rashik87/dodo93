@@ -11,20 +11,20 @@ export default async function handler(req, res) {
       });
     }
 
-    // إنشاء عميل Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+    });
 
-    // استدعاء الموديل
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    // النص المطلوب إرساله
+    // النص القادم من الواجهة
     const prompt = req.body?.prompt || "Hello Gemini, are you working?";
 
+    // تنفيذ الطلب
     const result = await model.generateContent(prompt);
 
     return res.status(200).json({
       success: true,
-      response: result.response.text(),
+      text: result.response.text(),
     });
   } catch (error) {
     console.error("Error in askGemini:", error);
