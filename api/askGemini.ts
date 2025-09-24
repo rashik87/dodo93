@@ -1,28 +1,50 @@
-// api/askGemini.ts
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { 
+  AiGeneratedRecipe, 
+  RecipeCategory, 
+  FoodItem, 
+  AiAnalyzedMeal, 
+  Macros, 
+  Recipe, 
+  DietProtocol, 
+  AiGeneratedMealSlot, 
+  WeightEntry, 
+  UserData, 
+  CarbCycleDayType, 
+  RecipeTag 
+} from "../types";
 
-export default async function handler(req: any, res: any) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST requests allowed" });
+let aiInstance: GoogleGenerativeAI | null = null;
+
+const getAi = (): GoogleGenerativeAI => {
+  if (!aiInstance) {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error(
+        "Gemini API Key not found. Please add GEMINI_API_KEY in Vercel > Project Settings > Environment Variables and redeploy the application."
+      );
+    }
+    aiInstance = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   }
+  return aiInstance;
+};
 
-  const { prompt } = req.body ?? {};
-  if (!prompt) {
-    return res.status(400).json({ error: "No prompt provided" });
-  }
+// Helper function to safely parse JSON from AI response
+const parseJsonResponse = <T>(jsonText: string, functionName: string): T => {
+  let textToParse = jsonText.trim();
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: "API key missing" });
+  // Remove markdown code fences if they exist
+  const jsonMatch = textToParse.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+  if (jsonMatch && jsonMatch[1]) {
+    textToParse = jsonMatch[1];
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-
-    return res.status(200).json({ text: result.response.text() });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    return JSON.parse(textToParse) as T;
+  } catch (error) {
+    console.error(`Error parsing JSON in ${functionName}:`, error);
+    console.error("Original text from AI:", jsonText);
+    throw new Error(`Failed to parse JSON response from AI in ${functionName}.`);
   }
-}
+};
+
+export { getAi, parseJsonResponse };
