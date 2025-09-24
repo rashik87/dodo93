@@ -1,14 +1,14 @@
-import { GoogleGenAI, Modality, Type } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AiGeneratedRecipe, RecipeCategory, FoodItem, AiAnalyzedMeal, Macros, Recipe, DietProtocol, AiGeneratedMealSlot, WeightEntry, UserData, CarbCycleDayType, RecipeTag } from '../types';
 
-let aiInstance: GoogleGenAI | null = null;
+let aiInstance: GoogleGenerativeAI | null = null;
 
-const getAi = (): GoogleGenAI => {
+const getAi = (): GoogleGenerativeAI => {
     if (!aiInstance) {
         if (!process.env.GEMINI_API_KEY) {
             throw new Error("Gemini API Key not found. The GEMINI_API_KEY environment variable is not set. Please add it to your deployment environment (e.g., Vercel > Project Settings > Environment Variables) and redeploy the application.");
         }
-        aiInstance = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        aiInstance = new GoogleGenerativeAI({ apiKey: process.env.GEMINI_API_KEY });
     }
     return aiInstance;
 };
@@ -30,7 +30,6 @@ const parseJsonResponse = <T>(jsonText: string, functionName: string): T => {
         throw new Error(`Failed to parse JSON response from AI in ${functionName}.`);
     }
 };
-
 const handleAiError = (error: unknown, userFacingAction: string): Error => {
     console.error(`Error during AI Action (${userFacingAction}):`, error);
     let errorMessage = `حدث خطأ أثناء ${userFacingAction}.`; // Default message
